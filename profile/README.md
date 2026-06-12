@@ -153,6 +153,14 @@ A extensao e carregada localmente pelo Chrome em `chrome://extensions`, usando `
 - A captura de tela pela extensao deve ocorrer somente com consentimento explicito do usuario.
 - Qualquer uso assistencial das sugestoes de IA deve ser validado por profissional responsavel.
 
+## Acesso a credenciais
+
+As credenciais, dados operacionais e documentos de acesso do projeto devem ser concentrados no Google Drive privado do PPSUS-SysAI:
+
+- [Drive privado de credenciais e acessos](https://drive.google.com/drive/folders/1WfB8KC8jRw8ROjRzxvLUn8hAVn9WafZe?usp=sharing)
+
+Apenas pessoas com os devidos acessos e autorizacao do projeto podem acessar esse Drive. O link nao deve ser tornado publico, e qualquer compartilhamento deve ser feito com controle por conta autorizada.
+
 ## Repositorios
 
 - [`PPSUS-Sys/app-web`](https://github.com/PPSUS-Sys/app-web)
