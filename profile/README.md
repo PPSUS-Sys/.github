@@ -1,132 +1,140 @@
 # PPSUS-SysAI
 
-## Inovacao em gestao publica da tuberculose no SUS
+## Plataforma de apoio à gestão e ao acompanhamento da tuberculose no SUS
 
 <img width="2752" height="1536" alt="PPSUS-SysAI" src="https://github.com/user-attachments/assets/537cbebe-523e-4850-b832-a6f826e58834" />
 
-O **PPSUS-SysAI** e uma plataforma digital para apoiar a prevencao, o monitoramento, o acompanhamento clinico e a gestao publica da tuberculose no Sistema Unico de Saude. A solucao combina dashboards epidemiologicos, gestao de pacientes e prontuarios, recuperacao de casos similares, assistente de IA, cache de literatura cientifica e extensao de navegador para apoio contextual ao uso do sistema.
+O **PPSUS-SysAI** é uma plataforma digital voltada ao apoio da gestão pública, do acompanhamento clínico e da análise epidemiológica da tuberculose no contexto do Sistema Único de Saúde. O projeto reúne aplicação web, API de negócio, serviços especializados de inteligência artificial e uma extensão de navegador para apoiar fluxos operacionais com dados clínicos, evidências científicas e análise contextual.
 
-O projeto foi desenvolvido para integrar ciencia de dados, inteligencia artificial e visualizacao territorial em um fluxo operacional voltado a equipes de saude, pesquisadores e gestores publicos.
+A proposta do sistema não é substituir a avaliação profissional, mas organizar informações, reduzir fricções de uso, apoiar a interpretação de dados e oferecer ferramentas computacionais para acompanhamento, comparação e priorização de casos.
 
-## Objetivos
+## Escopo do projeto
 
-- Apoiar secretarias e equipes de saude no acompanhamento de casos de tuberculose.
-- Centralizar dados clinicos, territoriais e operacionais em interfaces de uso diario.
-- Oferecer dashboards para analise epidemiologica, distribuicao territorial e indicadores de acompanhamento.
-- Apoiar decisao clinica com busca de casos similares baseada em representacoes vetoriais.
-- Disponibilizar um agente de chat com suporte contextual, referencias cientificas e captura de tela autorizada pelo usuario.
-- Reduzir friccao operacional por meio de extensao de navegador integrada ao sistema.
+A plataforma cobre quatro frentes principais:
 
-## Arquitetura
+- **Gestão e acompanhamento de pacientes:** cadastro, prontuários, exames, consultas, indicadores clínicos e histórico de acompanhamento.
+- **Análise epidemiológica e territorial:** dashboards, gráficos, filtros temporais e visualização de distribuição de casos.
+- **Apoio computacional à decisão:** busca de casos similares, geração de resumos, cache de literatura científica e integração com modelos de linguagem.
+- **Suporte operacional via extensão:** chat contextual no navegador, histórico por sessão e captura de tela somente mediante confirmação explícita do usuário.
 
-A plataforma e organizada em quatro frentes principais:
+## Arquitetura atual
 
-| Repositorio | Papel | Stack principal |
+A solução está organizada em repositórios independentes, cada um com responsabilidade definida.
+
+| Repositório | Responsabilidade | Tecnologias principais |
 | --- | --- | --- |
-| [`app-web`](https://github.com/PPSUS-Sys/app-web) | Front-end web, landing page, login, dashboard, gestao de pacientes, prontuarios, acompanhamento, comparacao e administracao | Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Recharts, Leaflet |
-| [`api-gateway`](https://github.com/PPSUS-Sys/api-gateway) | API principal/BFF, autenticacao, sessoes, regras de acesso, CRUD clinico, relatorios e encaminhamento para servicos especializados | NestJS, Node.js, Sequelize, MySQL, JWT |
-| [`api-especializada`](https://github.com/PPSUS-Sys/api-especializada) | Processamento especializado, IA, embeddings, busca vetorial, casos similares, chat, cache cientifico e integracoes externas | FastAPI, Python, Redis/RediSearch, MySQL, OpenRouter/Ollama, PubMed, Cloudflare R2 |
-| [`extension`](https://github.com/PPSUS-Sys/extension) | Extensao Chrome com painel lateral de chat, captura de tela autorizada, historico local e integracao com o gateway | Chrome Extension Manifest V3, JavaScript modular |
+| [`app-web`](https://github.com/PPSUS-Sys/app-web) | Interface web, landing page, autenticação visual, dashboards, gestão de pacientes, prontuários, acompanhamento, comparação de casos e telas administrativas. | Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Recharts, Leaflet |
+| [`api-gateway`](https://github.com/PPSUS-Sys/api-gateway) | API principal do sistema. Centraliza autenticação, sessões, permissões, CRUD clínico, relatórios e encaminhamento para a API especializada. | NestJS, Node.js, Sequelize, MySQL, JWT |
+| [`api-especializada`](https://github.com/PPSUS-Sys/api-especializada) | Serviços de IA e processamento especializado: casos similares, embeddings, chat, análise de captura de tela, cache científico e integrações externas. | FastAPI, Python, Redis/RediSearch, MySQL, OpenRouter/Ollama, PubMed, Cloudflare R2 |
+| [`extension`](https://github.com/PPSUS-Sys/extension) | Extensão Chrome com painel lateral de chat, sessão local, histórico por usuário e captura de tela autorizada. | Chrome Extension Manifest V3, JavaScript modular |
+| [`.github`](https://github.com/PPSUS-Sys/.github) | Perfil público da organização e documentação geral do projeto. | Markdown |
 
-Fluxo resumido:
+## Fluxo operacional
 
 ```text
-Usuario
+Usuário
   -> app-web ou extension
   -> api-gateway
   -> MySQL para dados transacionais
-  -> api-especializada para IA, chat, casos similares e CAG
-  -> Redis/RediSearch para vetores, cache e sessoes especializadas
-  -> PubMed/OpenRouter/Ollama/R2 conforme o recurso acionado
+  -> api-especializada para IA, chat, CAG e casos similares
+  -> Redis/RediSearch para vetores, cache e contexto especializado
+  -> provedores externos quando configurados: PubMed, OpenRouter/Ollama e Cloudflare R2
 ```
 
-## Componentes do sistema
+O `api-gateway` é o ponto central de entrada para clientes web e extensão. A `api-especializada` concentra operações de maior custo computacional ou dependentes de IA, preservando separação entre regras de negócio, autenticação e processamento semântico.
 
-### Aplicacao web
+## Componentes em detalhe
 
-O `app-web` concentra a experiencia principal do usuario:
+### Aplicação web
 
-- pagina institucional e login;
-- dashboard epidemiologico;
-- gestao de pacientes e prontuarios;
-- acompanhamento individual de pacientes;
-- comparacao entre paciente de referencia e casos similares;
-- area administrativa;
-- gestao do cache cientifico;
-- paginas de apoio para uso da extensao.
+O `app-web` é a interface principal do PPSUS-SysAI. Ele oferece:
+
+- página institucional e fluxo de login;
+- dashboard epidemiológico;
+- gestão de pacientes;
+- gestão de prontuários e exames;
+- acompanhamento clínico individual;
+- visualização de casos similares;
+- comparação entre paciente de referência e caso recuperado;
+- gestão administrativa de usuários;
+- gestão do cache científico usado pelo CAG;
+- páginas de apoio à extensão do navegador.
 
 ### API Gateway
 
-O `api-gateway` centraliza as chamadas do front-end e da extensao:
+O `api-gateway` atua como API principal/BFF da plataforma. Suas responsabilidades incluem:
 
-- autenticacao JWT;
-- sessao separada por canal (`web` e `extension`);
-- controle de acesso por perfil;
-- endpoints de pacientes, prontuarios e relatorios;
-- roteamento para chat, casos similares e cache cientifico na API especializada;
-- Swagger em `/api/docs`.
+- autenticação via JWT;
+- validação de sessão ativa;
+- separação de sessão por canal (`web` e `extension`);
+- controle de permissões por perfil;
+- endpoints de pacientes, prontuários e relatórios;
+- encaminhamento de chat, casos similares e cache científico para a API especializada;
+- documentação Swagger em `/api/docs`.
 
 ### API especializada
 
-A `api-especializada` isola os recursos computacionais e de IA:
+A `api-especializada` concentra os módulos de IA e recuperação semântica. Atualmente cobre:
 
-- busca vetorial de casos similares em Redis/RediSearch;
-- indexacao e reindexacao de perfis clinicos;
-- agente de chat contextual;
-- analise de captura de tela quando autorizada pelo usuario;
-- cache de literatura cientifica com PubMed;
-- integracao com modelos via OpenRouter/Ollama;
-- armazenamento de imagens do chat via Cloudflare R2 quando configurado.
+- indexação vetorial de perfis clínicos;
+- busca de casos similares em Redis/RediSearch;
+- cálculo de atributos em comum entre pacientes;
+- agente de chat com contexto de sessão;
+- análise de screenshots quando o usuário autoriza a captura;
+- cache de literatura científica com busca em PubMed;
+- integração com modelos via OpenRouter/Ollama;
+- armazenamento de imagens do chat em Cloudflare R2 quando configurado.
 
-### Extensao de navegador
+### Extensão de navegador
 
-A extensao `extension` adiciona um painel lateral no Chrome para suporte contextual:
+A extensão adiciona um painel lateral ao Chrome para apoiar o uso do sistema durante o fluxo de trabalho. Ela realiza:
 
-- login via `api-gateway`;
+- autenticação via `api-gateway`;
 - envio de mensagens ao agente especializado;
-- historico local por usuario e sessao;
-- captura de tela somente com confirmacao explicita;
-- fluxo modular em `pages`, `services`, `components` e `utils`.
+- persistência local de sessão e histórico por usuário;
+- captura da aba ativa somente após confirmação explícita;
+- renderização de respostas, referências, gráficos e ações rápidas.
 
-## Principais funcionalidades
+## Dados e integrações
 
-- Monitoramento de indicadores de tuberculose.
-- Visualizacao territorial e mapas de casos.
-- Cadastro e gestao de pacientes.
-- Gestao de prontuarios e exames.
-- Acompanhamento clinico com indicadores de evolucao.
-- Busca de casos similares por perfil clinico.
-- Comparacao entre pacientes.
-- Chat assistivo com contexto de sessao.
-- Cache-Augmented Generation (CAG) para referencias cientificas.
-- Gestao administrativa de usuarios e recursos internos.
-- Extensao Chrome para suporte dentro do fluxo de trabalho.
+O sistema trabalha com dados relacionados ao acompanhamento da tuberculose, incluindo:
 
-## Dados e integracoes
+- dados cadastrais de pacientes;
+- identificadores e notificações, como SINAN quando disponíveis;
+- informações clínicas, comorbidades, tratamentos, exames, consultas e reações adversas;
+- localização territorial e unidade de acompanhamento;
+- referências científicas recuperadas em fontes externas como PubMed.
 
-O sistema foi pensado para trabalhar com dados clinicos e epidemiologicos relacionados a tuberculose, incluindo:
+Fontes e integrações citadas no escopo do projeto incluem SINAN, e-SUS AB, SIVEP, TBweb e bases institucionais como HUJBB/UFPA/Ebserh, sempre condicionadas à disponibilidade, autorização institucional e governança de dados.
 
-- dados de pacientes;
-- notificacoes e identificadores como SINAN quando disponiveis;
-- dados clinicos, comorbidades, tratamentos, exames, consultas e reacoes adversas;
-- localizacao territorial e unidade de acompanhamento;
-- referencias cientificas recuperadas em bases como PubMed.
+## Recursos principais
 
-Fontes e integracoes citadas no escopo do projeto incluem SINAN, e-SUS AB, SIVEP, TBweb e bases institucionais como HUJBB/UFPA/Ebserh, conforme disponibilidade, autorizacao e governanca de dados.
+- Cadastro e gestão de pacientes.
+- Gestão de prontuários, exames e informações clínicas.
+- Dashboards epidemiológicos e territoriais.
+- Acompanhamento individual de pacientes.
+- Indicadores de evolução e pontos de atenção.
+- Busca vetorial de casos similares.
+- Comparação estruturada entre pacientes.
+- Chat assistivo com contexto de sessão.
+- Cache-Augmented Generation (CAG) para apoio com referências científicas.
+- Extensão Chrome para suporte contextual durante o uso do sistema.
 
-## Execucao local
+## Execução local
 
-Cada repositorio possui seu proprio README e arquivo `.env.example`. Em geral, o ambiente de desenvolvimento exige:
+Cada repositório possui seu próprio README e arquivo `.env.example`. A configuração completa depende do conjunto de serviços que será executado.
 
-- Node.js 20+ para o front-end;
-- Node.js/NestJS para o gateway;
+Requisitos comuns:
+
+- Node.js 20+ para a aplicação web;
+- Node.js/NestJS para o API Gateway;
 - Python 3.11+ para a API especializada;
 - MySQL ou MariaDB para dados transacionais;
-- Redis com RediSearch para vetores e cache;
-- Docker/Docker Compose para execucao containerizada;
-- chaves externas apenas quando recursos como OpenRouter, PubMed API ou R2 forem usados.
+- Redis com RediSearch para vetores, cache e sessões especializadas;
+- Docker/Docker Compose para execução containerizada;
+- credenciais externas apenas quando recursos como OpenRouter, PubMed API ou R2 forem utilizados.
 
-Comandos base por servico:
+Comandos base por serviço:
 
 ```bash
 # app-web
@@ -142,26 +150,27 @@ pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8001
 ```
 
-A extensao e carregada localmente pelo Chrome em `chrome://extensions`, usando `Load unpacked` na pasta do projeto.
+A extensão é carregada localmente pelo Chrome em `chrome://extensions`, usando a opção `Load unpacked` na pasta do projeto.
 
-## Configuracao e seguranca
+## Configuração e segurança
 
-- Credenciais reais nao devem ser versionadas no GitHub.
-- Use `.env.example` como referencia e mantenha `.env` apenas em ambiente local/seguro.
+- Credenciais reais não devem ser versionadas no GitHub.
+- Arquivos `.env.example` devem ser usados apenas como referência de configuração.
+- Arquivos `.env` reais devem permanecer fora do versionamento e em ambiente controlado.
 - Tokens JWT, credenciais de banco, Redis, OpenRouter, R2 e APIs externas devem ser tratados como segredos.
-- Dados clinicos e credenciais operacionais devem ficar em repositorios ou pastas privadas com controle de acesso.
-- A captura de tela pela extensao deve ocorrer somente com consentimento explicito do usuario.
-- Qualquer uso assistencial das sugestoes de IA deve ser validado por profissional responsavel.
+- Dados clínicos, bases operacionais e credenciais devem ser acessados apenas por pessoas autorizadas.
+- A captura de tela pela extensão deve ocorrer somente mediante consentimento explícito do usuário.
+- Resultados produzidos por IA são apoio informacional e exigem validação profissional e institucional.
 
 ## Acesso a credenciais
 
-As credenciais, dados operacionais e documentos de acesso do projeto devem ser concentrados no Google Drive privado do PPSUS-SysAI:
+As credenciais, documentos de acesso e dados operacionais do projeto devem ser concentrados no Google Drive privado do PPSUS-SysAI:
 
 - [Drive privado de credenciais e acessos](https://drive.google.com/drive/folders/1WfB8KC8jRw8ROjRzxvLUn8hAVn9WafZe?usp=sharing)
 
-Apenas pessoas com os devidos acessos e autorizacao do projeto podem acessar esse Drive. O link nao deve ser tornado publico, e qualquer compartilhamento deve ser feito com controle por conta autorizada.
+Apenas pessoas com os devidos acessos e autorização do projeto podem acessar esse Drive. O link não deve ser tornado público, e qualquer compartilhamento deve ser feito com controle por conta autorizada.
 
-## Repositorios
+## Organização dos repositórios
 
 - [`PPSUS-Sys/app-web`](https://github.com/PPSUS-Sys/app-web)
 - [`PPSUS-Sys/api-gateway`](https://github.com/PPSUS-Sys/api-gateway)
@@ -169,28 +178,30 @@ Apenas pessoas com os devidos acessos e autorizacao do projeto podem acessar ess
 - [`PPSUS-Sys/extension`](https://github.com/PPSUS-Sys/extension)
 - [`PPSUS-Sys/.github`](https://github.com/PPSUS-Sys/.github)
 
-## Roadmap operacional
+## Melhorias em andamento
 
-Alguns pontos de evolucao ja mapeados para o projeto:
+Alguns pontos já mapeados para evolução do sistema:
 
-- melhorar fluxo de cadastro de pacientes, evitando campos redundantes e sincronizando novos registros com Redis;
-- aprimorar continuidade de contexto no chat da extensao;
-- padronizar dominios e ambientes entre web, gateway e extensao;
-- fortalecer CORS e tratamento de erros do gateway;
-- melhorar a gestao visual do CAG em `/dashboard/cache-cientifico`;
-- organizar dados e credenciais em ambiente privado compartilhado;
-- atualizar continuamente a documentacao tecnica dos servicos.
+- melhoria do fluxo de cadastro de pacientes, incluindo redução de campos redundantes, endereço assistido e sincronização com Redis;
+- melhoria da continuidade de contexto no chat da extensão;
+- padronização de domínios e ambientes entre web, gateway e extensão;
+- fortalecimento do CORS e do tratamento de erros do gateway;
+- aprimoramento da interface de gestão do CAG em `/dashboard/cache-cientifico`;
+- centralização operacional de dados e credenciais em ambiente privado;
+- atualização contínua dos READMEs técnicos dos serviços.
 
-## Governanca
+## Governança técnica
 
-O projeto e academico-cientifico e voltado a inovacao em saude publica. O desenvolvimento deve priorizar:
+O desenvolvimento do PPSUS-SysAI deve priorizar:
 
-- rastreabilidade de decisoes tecnicas;
-- protecao de dados sensiveis;
-- revisao de codigo;
-- documentacao clara;
-- validacao clinica e institucional dos recursos de apoio a decisao.
+- rastreabilidade de decisões técnicas;
+- revisão de código e issues bem delimitadas;
+- documentação objetiva e atualizada;
+- proteção de dados sensíveis;
+- separação clara entre código, configuração e credenciais;
+- validação clínica e institucional dos recursos de apoio à decisão;
+- manutenção de histórico e contexto suficiente para operação segura.
 
-## Licenca e uso
+## Natureza do projeto
 
-Projeto academico-cientifico voltado a inovacao em gestao publica da tuberculose no Brasil. O uso de dados clinicos, credenciais e integracoes externas deve respeitar autorizacoes institucionais, politicas de privacidade e normas aplicaveis ao SUS e a pesquisa em saude.
+O PPSUS-SysAI é um projeto acadêmico-científico aplicado à inovação em saúde pública. Seu uso em ambientes reais deve respeitar autorizações institucionais, governança de dados, políticas de privacidade e normas aplicáveis ao SUS e à pesquisa em saúde.
